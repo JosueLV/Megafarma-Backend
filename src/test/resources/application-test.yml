@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:megafarma-test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000
+    username: sa
+    password: ''
+    driver-class-name: org.h2.Driver
+app:
+  demo:
+    enabled: true
+  jwt:
+    secret: dGVzdC1vbmx5LW1lZ2FmYXJtYS0zMi1ieXRlLXNlY3JldC0xMjM0NQ==
+logging:
+  level:
+    root: WARN

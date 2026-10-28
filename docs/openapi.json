@@ -1,0 +1,967 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Megafarma · Sprint 1",
+    "description": "G3 - Cueva: acceso, productos y entradas por lote",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:18080",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/v1/productos": {
+      "get": {
+        "tags": [
+          "producto-controller"
+        ],
+        "summary": "HU-03 · Buscar por código, nombre o principio activo",
+        "operationId": "listar",
+        "parameters": [
+          {
+            "name": "buscar",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 150,
+              "minLength": 0
+            }
+          },
+          {
+            "name": "activo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "tamanio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "ordenarPor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "id"
+            }
+          },
+          {
+            "name": "direccion",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "asc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponseDTOProductoResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "producto-controller"
+        ],
+        "summary": "HU-01 · Registrar producto sin stock inicial",
+        "operationId": "crear",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductoRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductoResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/entradas": {
+      "get": {
+        "tags": [
+          "entrada-controller"
+        ],
+        "operationId": "listar_1",
+        "parameters": [
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "tamanio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponseDTOEntradaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "entrada-controller"
+        ],
+        "summary": "HU-05 · Registrar uno o varios lotes de forma atómica e idempotente",
+        "operationId": "registrar",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "UUID nuevo por operación. Reutilizar el mismo UUID y cuerpo para reintentar.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntradaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "summary": "Cerrar la sesión actual e invalidar su JWT",
+        "operationId": "logout",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "summary": "HU-21 · Iniciar sesión",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDTO"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/usuarios/me": {
+      "get": {
+        "tags": [
+          "usuario-controller"
+        ],
+        "operationId": "me",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/productos/{id}": {
+      "get": {
+        "tags": [
+          "producto-controller"
+        ],
+        "operationId": "buscar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductoResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/productos/{id}/stock": {
+      "get": {
+        "tags": [
+          "inventario-controller"
+        ],
+        "operationId": "stock",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lotes": {
+      "get": {
+        "tags": [
+          "inventario-controller"
+        ],
+        "summary": "HU-06 · Lotes ordenados por vencimiento",
+        "operationId": "lotes",
+        "parameters": [
+          {
+            "name": "productoId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "tamanio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponseDTOLoteResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lotes/{id}": {
+      "get": {
+        "tags": [
+          "inventario-controller"
+        ],
+        "operationId": "lote",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoteResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inventario/stock": {
+      "get": {
+        "tags": [
+          "inventario-controller"
+        ],
+        "summary": "HU-06 · Stock físico y vendible por producto",
+        "operationId": "listar_2",
+        "parameters": [
+          {
+            "name": "buscar",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 150,
+              "minLength": 0
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "tamanio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaResponseDTOStockResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/entradas/{id}": {
+      "get": {
+        "tags": [
+          "entrada-controller"
+        ],
+        "operationId": "buscar_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntradaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProductoRequestDTO": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "[A-Za-z0-9][A-Za-z0-9._-]{0,49}"
+          },
+          "nombre": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 0
+          },
+          "descripcion": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "principioActivo": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 0
+          },
+          "presentacion": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "laboratorio": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 0
+          },
+          "precioVenta": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "stockMinimo": {
+            "type": "integer",
+            "format": "int64",
+            "maximum": 1000000000,
+            "minimum": 0
+          }
+        },
+        "required": [
+          "codigo",
+          "nombre",
+          "precioVenta",
+          "presentacion",
+          "stockMinimo"
+        ]
+      },
+      "ProductoResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "codigo": {
+            "type": "string"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "descripcion": {
+            "type": "string"
+          },
+          "principioActivo": {
+            "type": "string"
+          },
+          "presentacion": {
+            "type": "string"
+          },
+          "laboratorio": {
+            "type": "string"
+          },
+          "precioVenta": {
+            "type": "number"
+          },
+          "stockMinimo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "activo": {
+            "type": "boolean"
+          },
+          "creadoEn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Detalle": {
+        "type": "object",
+        "properties": {
+          "productoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lote": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "[A-Za-z0-9][A-Za-z0-9._-]{0,79}"
+          },
+          "fechaVencimiento": {
+            "type": "string",
+            "format": "date"
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int64",
+            "maximum": 1000000000,
+            "minimum": 1
+          }
+        },
+        "required": [
+          "cantidad",
+          "fechaVencimiento",
+          "lote",
+          "productoId"
+        ]
+      },
+      "EntradaRequestDTO": {
+        "type": "object",
+        "properties": {
+          "referencia": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 0
+          },
+          "observacion": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "detalles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Detalle"
+            },
+            "maxItems": 100,
+            "minItems": 0
+          }
+        },
+        "required": [
+          "detalles"
+        ]
+      },
+      "EntradaResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "claveIdempotencia": {
+            "type": "string"
+          },
+          "referencia": {
+            "type": "string"
+          },
+          "observacion": {
+            "type": "string"
+          },
+          "creadoEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "creadoPor": {
+            "type": "string"
+          },
+          "detalles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Detalle"
+            }
+          }
+        }
+      },
+      "LoginRequestDTO": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 0
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 72,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ]
+      },
+      "LoginResponseDTO": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "tipo": {
+            "type": "string"
+          },
+          "expiraEnSegundos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "nombreCompleto": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permisos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UsuarioResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "nombreCompleto": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permisos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PaginaResponseDTOProductoResponseDTO": {
+        "type": "object",
+        "properties": {
+          "contenido": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductoResponseDTO"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tamanio": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElementos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaginas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ultima": {
+            "type": "boolean"
+          }
+        }
+      },
+      "StockResponseDTO": {
+        "type": "object",
+        "properties": {
+          "productoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "codigo": {
+            "type": "string"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "stockFisico": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stockVendible": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stockNoVendible": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "stockMinimo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "bajoMinimo": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LoteResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productoCodigo": {
+            "type": "string"
+          },
+          "productoNombre": {
+            "type": "string"
+          },
+          "codigo": {
+            "type": "string"
+          },
+          "fechaVencimiento": {
+            "type": "string",
+            "format": "date"
+          },
+          "cantidadDisponible": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "vencido": {
+            "type": "boolean"
+          },
+          "vendible": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginaResponseDTOLoteResponseDTO": {
+        "type": "object",
+        "properties": {
+          "contenido": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LoteResponseDTO"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tamanio": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElementos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaginas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ultima": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginaResponseDTOStockResponseDTO": {
+        "type": "object",
+        "properties": {
+          "contenido": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockResponseDTO"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tamanio": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElementos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaginas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ultima": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginaResponseDTOEntradaResponseDTO": {
+        "type": "object",
+        "properties": {
+          "contenido": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntradaResponseDTO"
+            }
+          },
+          "pagina": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tamanio": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElementos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaginas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ultima": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

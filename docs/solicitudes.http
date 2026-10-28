@@ -1,0 +1,70 @@
+### REST Client de VS Code / IntelliJ: reemplaza token y productoId.
+@baseUrl = http://localhost:8080
+@token = PEGA_EL_TOKEN_DEL_LOGIN
+@productoId = 1
+
+### HU-21 Login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{"username":"admin","password":"AdminDemo2026!"}
+
+### Usuario y permisos
+GET {{baseUrl}}/api/v1/usuarios/me
+Authorization: Bearer {{token}}
+
+### HU-01 Crear producto (el código debe ser único)
+POST {{baseUrl}}/api/v1/productos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "codigo": "MED-001",
+  "nombre": "Paracetamol 500 mg",
+  "descripcion": "Caja de tabletas",
+  "principioActivo": "Paracetamol",
+  "presentacion": "Tableta",
+  "laboratorio": "Laboratorio de ejemplo",
+  "precioVenta": 0.50,
+  "stockMinimo": 10
+}
+
+### HU-03 Buscar
+GET {{baseUrl}}/api/v1/productos?buscar=paracetamol&pagina=0&tamanio=20&ordenarPor=nombre&direccion=asc
+Authorization: Bearer {{token}}
+
+### HU-05 Nueva entrada. Genera UUID nuevo para otra operación.
+### Para comprobar idempotencia, repite esta petición sin cambiar cuerpo ni clave.
+POST {{baseUrl}}/api/v1/entradas
+Authorization: Bearer {{token}}
+Idempotency-Key: a9c2a38a-351c-4836-94f8-995840703ca1
+Content-Type: application/json
+
+{
+  "referencia": "GUIA-001",
+  "observacion": "Recepción de mercadería",
+  "detalles": [
+    {"productoId": {{productoId}}, "lote": "LOTE-001", "fechaVencimiento": "2030-12-31", "cantidad": 25},
+    {"productoId": {{productoId}}, "lote": "LOTE-002", "fechaVencimiento": "2031-06-30", "cantidad": 15}
+  ]
+}
+
+### HU-06 Stock por producto
+GET {{baseUrl}}/api/v1/productos/{{productoId}}/stock
+Authorization: Bearer {{token}}
+
+### HU-06 Lotes del producto
+GET {{baseUrl}}/api/v1/lotes?productoId={{productoId}}&pagina=0&tamanio=20
+Authorization: Bearer {{token}}
+
+### Stock paginado del catálogo
+GET {{baseUrl}}/api/v1/inventario/stock?pagina=0&tamanio=20
+Authorization: Bearer {{token}}
+
+### Entradas registradas
+GET {{baseUrl}}/api/v1/entradas?pagina=0&tamanio=20
+Authorization: Bearer {{token}}
+
+### Logout: el token actual deja de funcionar
+POST {{baseUrl}}/api/v1/auth/logout
+Authorization: Bearer {{token}}
